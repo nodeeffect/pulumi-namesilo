@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Sherlockdomains
+namespace Pulumi.Namesilo
 {
-    [SherlockdomainsResourceType("pulumi:providers:sherlockdomains")]
+    [NamesiloResourceType("pulumi:providers:namesilo")]
     public partial class Provider : global::Pulumi.ProviderResource
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Pulumi.Sherlockdomains
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Provider(string name, ProviderArgs? args = null, CustomResourceOptions? options = null)
-            : base("sherlockdomains", name, args ?? new ProviderArgs(), MakeResourceOptions(options, ""))
+            : base("namesilo", name, args ?? new ProviderArgs(), MakeResourceOptions(options, ""))
         {
         }
 

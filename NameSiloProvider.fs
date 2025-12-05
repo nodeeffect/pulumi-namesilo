@@ -16,6 +16,7 @@ open Pulumi.Experimental.Provider
 type NameSiloProvider(apiKey: string) =
     inherit Pulumi.Experimental.Provider.Provider()
 
+    static let dnsRecordResourceName = "namesilo:index:DnsRecord"
     static let apiBaseUrl = "https://www.namesilo.com/api"
 
     let httpClient = new HttpClient()
@@ -49,19 +50,54 @@ type NameSiloProvider(apiKey: string) =
         let uri = $"{apiBaseUrl}/{endpoint}?version=1&type=json&key={apiKey}{parametersString}"
         httpClient.GetStringAsync uri |> Async.AwaitTask
     
-    override self.GetSchema (request: GetSchemaRequest, ct: CancellationToken): Task<GetSchemaResponse> = 
+    override self.GetSchema (request: GetSchemaRequest, ct: CancellationToken): Task<GetSchemaResponse> =
+        let dnsRecordProperties = 
+            """{
+                                "domain": {
+                                    "type": "string",
+                                    "description": "The domain the record belongs to."
+                                },
+                                "rrid": {
+                                    "type": "string",
+                                    "description": "The unique ID of the resource record."
+                                },
+                                "rrtype": {
+                                    "type": "string",
+                                    "description": "The type of resources record to add. Possible values are A, AAAA, CNAME, MX, TXT, SRV and CAA"
+                                },
+                                "rrhost": {
+                                    "type": "string",
+                                    "description": "The hostname for the new record (there is no need to include the .DOMAIN)"
+                                },
+                                "rrvalue": {
+                                    "type": "string",
+                                    "description": "The value for the resource record"
+                                },
+                                "rrttl": {
+                                    "type": "integer",
+                                    "description": "The TTL for the new record (default is 7207 if not provided)"
+                                }
+                            }"""
+
         let schema =
             sprintf
                 """{
-                    "name": "sherlockdomains",
+                    "name": "namesilo",
                     "version": "%s",
                     "resources": {
+                        "%s" : {
+                            "properties": %s,
+                            "inputProperties": %s
+                        }
                     },
                     "provider": {
                     }
                 }"""
                 NameSiloProvider.Version
-
+                dnsRecordResourceName
+                dnsRecordProperties
+                dnsRecordProperties
+        
         Task.FromResult <| GetSchemaResponse(Schema = schema)
 
     override self.CheckConfig (request: CheckRequest, ct: CancellationToken): Task<CheckResponse> = 
